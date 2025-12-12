@@ -1,0 +1,16 @@
+Feature,Importance
+cogstat,0.33000693
+cogassess,0.07817978
+ed_time,0.049216963
+mobil2,0.03892278
+gdate_time,0.034265302
+dresidence,0.025205286
+time_to_surgery,0.023873806
+malnutrition,0.02382302
+addelassess,0.023438374
+age,0.020621052
+wdest,0.018430827
+sex,0.016849471
+fop2,0.015390483
+consult,0.014985184
+uresidence,0.0138230305

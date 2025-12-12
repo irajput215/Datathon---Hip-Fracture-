@@ -1,0 +1,77 @@
+pos,variable,label,col_type,missing,levels,value_labels
+1,tarrdatetime_year,Transfer Hospital Arrival Year,dbl,82759,,
+2,arrdatetime_year,Operating Hospital Arrival Year,dbl,4154,,
+3,depdatetime_year,Operating Hospital Departure Year,dbl,7356,,
+4,admdatetimeop_year,In-patient Fracture Year,dbl,95340,,
+5,sdatetime_year,Hip Fracture Surgery Year,dbl,2933,,
+6,gdate_year,Geriatric Medicine Assessment Year,dbl,12417,,
+7,wdisch_year,Discharge From Acute Ward Year,dbl,1644,,
+8,hdisch_year,Discharge From Hospital Year,dbl,10498,,
+9,tarrdatetime_month,Transfer Hospital Arrival Month,dbl,82759,,
+10,arrdatetime_month,Operating Hospital Arrival Month,dbl,4154,,
+11,depdatetime_month,Operating Hospital Departure Month,dbl,7356,,
+12,admdatetimeop_month,In-patient Fracture Month,dbl,95340,,
+13,sdatetime_month,Hip Fracture Surgery Month,dbl,2933,,
+14,gdate_month,Geriatric Medicine Assessment Month,dbl,12417,,
+15,wdisch_month,Discharge From Acute Ward Month,dbl,1644,,
+16,hdisch_month,Discharge From Hospital Month,dbl,10498,,
+17,tarrdatetime_datediff,Transfer Hospital Arrival Date Difference (days),drtn,82759,,
+18,arrdatetime_datediff,Operating Hospital Arrival Date Difference (days),drtn,4154,,
+19,depdatetime_datediff,Operating Hospital Departure Date Difference (days),drtn,7356,,
+20,admdatetimeop_datediff,In-patient Fracture Date Difference (days),drtn,95340,,
+21,sdatetime_datediff,Hip Fracture Surgery Date Difference (days),drtn,2933,,
+22,gdate_datediff,Geriatric Medicine Assessment Date Difference (days),drtn,12417,,
+23,wdisch_datediff,Discharge From Acute Ward Date Difference (days),drtn,1644,,
+24,hdisch_datediff,Discharge From Hospital Date Difference (days),drtn,10498,,
+25,tarrdatetime_hms,Transfer Hospital Arrival Time,chr,82759,,
+26,arrdatetime_hms,Operating Hospital Arrival Time,chr,4154,,
+27,depdatetime_hms,Operating Hospital Departure Time,chr,7356,,
+28,admdatetimeop_hms,In-patient Fracture Time,chr,95340,,
+29,sdatetime_hms,Hip Fracture Surgery Time,chr,2933,,
+30,age,Age,dbl,0,,
+31,sex,Sex,dbl+lbl,56,,[1] Male; [2] Female; [3] Intersex or indetermine
+32,ptype,Patient Type,dbl+lbl,2288,,[1] Public; [2] Private; [3] Overseas
+33,uresidence,Usual Place of Residence,dbl+lbl,402,,[1] Private residence; [2] Residential aged care facility; [3] Other
+34,e_dadmit,ED Admission of Operating Hospital,dbl+lbl,609,,[1] Yes; [2] No - transferred from another hospital (via ED); [3] No - in-patient fall; [4] No - transferred from another hospital (direct to ward)
+35,painassess,Pain Assessment,dbl+lbl,26191,,[1] Within 30 minutes of ED presentation; [2] Greater than 30 minutes of ED presentation; [3] Pain assessment not documented or not done
+36,painmanage,Pain Management,dbl+lbl,13493,,[1] Given within 30 minutes of ED presentation; [2] Given more than 30 minutes after ED presentation; [3] Not required – already provided by paramedics; [4] Not required – no pain documented on assessment
+37,tfanalges,Nerve Block Before Transfer,dbl+lbl,94831,,[1] No; [2] Yes
+38,ward,Ward Type,dbl+lbl,1741,,[1] Hip fracture unit/Orthopaedic ward/ preferred ward; [2] Outlying ward; [3] HDU / ICU / CCU
+39,walk,Pre-admission Walking Ability,dbl+lbl,1869,,[1] Walks without walking aids; [2] Walks with either a stick or crutch; [3] Walks with two aids or frame; [4] Uses a wheelchair / bed bound
+40,cogassess,Pre-admission Cognitive Assessment,dbl+lbl,7210,,[1] Not assessed; [2] Assessed and normal; [3] Assessed and abnormal or impaired
+41,cogstat,Pre-admission Cognitive Status,dbl+lbl,3316,,[1] Normal cognition; [2] Impaired cognition or known dementia
+42,addelassess,Delirium Assessment Prior To Surgery,dbl+lbl,82680,,[1] Not assessed; [2] Assessed and not identified; [3] Assessed and identified
+43,bonemed,Bone Protection Medication At Admission,dbl+lbl,2997,,"[1] No bone protection medication; [2] Calcium and/or vitamin D only; [3] Bisphosphonates, denosumab, romosozumab, teriparitide, raloxifene or HRT"
+44,passess,Pre-operative Medical Assessment,dbl+lbl,2316,,[1] No assessment conducted; [2] Geriatrician / Geriatric Team; [3] Physician / Physician Team; [4] GP; [5] Specialist nurse
+45,side,Side of Hip Fracture,dbl+lbl,0,,[1] Left; [2] Right
+46,afracture,Atypical Fracture,dbl+lbl,1191,,[1] Not a pathological or atypical fracture; [2] Pathological fracture; [3] Atypical fracture
+47,ftype,Type of Fracture,dbl+lbl,1130,,[1] Intracapsular undisplaced/impacted displaced; [2] Intracapsular displaced; [3] Per/intertrochanteric; [4] Subtrochanteric
+48,asa,ASA Grade,dbl+lbl,11429,,[1] Healthy individual with no systemic disease; [2] Mild systemic disease not limiting activity; [3] Severe systemic disease that limits activity but is not incapacitating; [4] Incapacitating systemic disease which is constantly life threatening; [5] Moribund not expected to survive 24 hours with or without surgery
+49,frailty,Clinical Frailty Scale,dbl+lbl,50302,,"[1] Very Fit; [2] Well; [3] Well, with treated comorbid disease; [4] Vulnerable; [5] Mildly frail; [6] Moderately frail; [7] Severely frail; [8] Very severely frail; [9] Terminally ill; [10] Frailty assessment using other validated tool"
+50,delay,Surgery Delay,dbl+lbl,18294,,"[1] No delay, surgery completed <48 hours; [2] Delay due to patient deemed medically unfit; [3] Delay due to issues with anticoagulation; [4] Delay due to theatre availability; [5] Delay due to surgeon availability; [6] Delay due to delayed diagnosis of hip fracture; [7] Other type of delay (state reason)"
+51,anaesth,Type of Anaesthesia,dbl+lbl,3350,,[1] General anaesthesia; [2] Spinal anaesthesia; [3] General and spinal anaesthesia; [4] Spinal / regional anaesthesia; [5] 6 General and spinal/regional anaesthesia; [6] Other
+52,analges,Analgesia - Nerve Block,dbl+lbl,4058,,[1] Nerve block administered before arriving in OT; [2] Nerve block administered in OT; [3] Both; [4] Neither
+53,consult,Consultant Surgeon Present,dbl+lbl,4090,,[1] No; [2] Yes
+54,wbear,Postoperative Weight Bearing Status,dbl+lbl,3144,,[1] Unrestricted weight bearing; [2] Restricted / non weight bearing
+55,mobil,First Day Mobilisation,dbl+lbl,14396,,[1] Patient out of bed and given opportunity to start mobilising day 1 post surgery; [2] Patient not given opportunity to start mobilising day 1 post surgery
+56,pulcers,New Skin Pressure Injuries,dbl+lbl,5145,,[1] No; [2] Yes
+57,fassess,Specialist Falls Assessment,dbl+lbl,4008,,[1] No; [2] Performed during admission; [3] Awaits falls clinic assessment; [4] Further intervention not appropriate; [5] Not relevant
+58,dbonemed1,Bone Protection Medication At Hospital Discharge,dbl+lbl,4888,,"[1] No bone protection medication; [2] Yes - Calcium and/or vitamin D only; [3] Yes - Bisphosphonates, denosumab, romosozumab, teriparatide, raloxifene or HRT; [4] No but received prescription at separation from hospital"
+59,delassess,Post-operative Delirium Assessment,dbl+lbl,14736,,[1] Not assessed; [2] Assessed and not identified; [3] Assessed and identified
+60,malnutrition,Clinical Malnutrition Assessment,dbl+lbl,27050,,[1] Not done; [2] Malnourished; [3] Not malnourished
+61,ons,Oral Nutritional Supplements,dbl+lbl,83298,,[1] No; [2] Yes
+62,mobil2,First Day Walking,dbl+lbl,36651,,[1] No; [2] Yes
+63,wdest,Discharge Destination From Acute Ward,dbl+lbl,1470,,[1] Private residence; [2] Residential aged care facility; [3] Rehabilitation unit public; [4] Rehabilitation unit private; [5] Other hospital / ward / specialty; [6] Deceased; [7] Short term care in residential care facility (New Zealand only); [8] Other
+64,dresidence,Discharge Place of Residence,dbl+lbl,12925,,[1] Private residence; [2] Residential aged care facility; [3] Deceased; [4] Other
+65,fresidence2,Place of Residence at 120-day Follow-up,dbl+lbl,58442,,[1] Private residence; [2] Residential aged care facility; [3] Rehabilitation unit public; [4] Rehabilitation unit private; [5] Other hospital / ward / specialty; [6] Deceased; [7] Short term care in residential care facility (New Zealand only); [8] Other
+66,weight_bear120,Full Weight Bear at 120-day Follow- up,dbl+lbl,85518,,[1] Unrestricted weight bearing; [2] Restricted / non weight bearing
+67,fwalk2,Walking Ability at 120-day Follow-up,dbl+lbl,61106,,[1] Walks without walking aids; [2] Walks with either a stick or crutch; [3] Walks with two aids or frame; [4] Uses a wheelchair / bed bound; [5] Not relevant
+68,fbonemed2,Bone Protection Medication at 120-day Follow-up,dbl+lbl,61850,,"[1] No bone protection medication; [2] Calcium and/or vitamin D only; [3] Bisphosphonates, denosumab, romosozumab, teriparatide, raloxifene or HRT"
+69,fop2,Re-operation within 120-day Follow-up,dbl+lbl,58072,,[1] No reoperation; [2] Reduction of dislocated prosthesis; [3] Washout or debridement; [4] Implant removal; [5] Revision of internal fixation; [6] Conversion to hemiarthroplasty; [7] Conversion to total hip replacement; [8] Excision arthroplasty; [9] Periprosthetic fracture; [10] Revision arthroplasty; [11] Not relevant
+70,ahos_code,Identifier of Operating Hospital,chr,0,,
+71,surg,Surgical Repair,dbl+lbl,0,,[1] No; [2] Yes; [3] No – surgical fixation not clinically indicated; [4] No – patient for palliation; [5] No – other reason
+72,gerimed,Assessed By Geriatric Medicine,dbl+lbl,1795,,[0] No; [1] Yes; [8] No geriatric medicine service available; [9] Not known
+73,mort30d,30-day Mortality,dbl+lbl,20,,[1] Alive; [2] Deceased
+74,mort90d,90-day Mortality,dbl+lbl,20,,[1] Alive; [2] Deceased
+75,mort120d,120-day Mortality,dbl+lbl,20,,[1] Alive; [2] Deceased
+76,mort365d,365-day Mortality,dbl+lbl,20,,[1] Alive; [2] Deceased
