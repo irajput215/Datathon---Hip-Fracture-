@@ -1173,7 +1173,6 @@ def main():
             - **Target**: Post-operative delirium (binary: assessed & identified vs. not)
             - **AUC**: ~0.81 on held-out test set
             - **Use Case**: Clinical decision support for identifying high-risk patients
-            - **Accuracy**    : 0.7529
             - **AUC**         : 0.8074
             - **Recall**      : 0.7305
             """)
