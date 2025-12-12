@@ -453,18 +453,122 @@ def main():
             )
             st.plotly_chart(fig_delass, use_container_width=True)
 
-        #-------------------------------------------
-        # --- LOAD DATA ONCE ---
+        #----------------------------------------------------------
+        # Title
+        st.markdown('<h1 class="main-header">🦴 Hip Fracture Outcome Predictor</h1>', unsafe_allow_html=True)
+
+        # Load data
         @st.cache_data
         def load_cohort_data():
-            return pd.read_csv("test_task1a_cleaned.csv")
+            try:
+                df = pd.read_csv("test_task1a_cleaned.csv")
+                # Get unique values from the dataset to populate dropdowns
+                unique_values = {}
+                for col in ['sex_label', 'walk_label', 'asa_label', 'cogstat_label', 'ward_label', 'uresidence_label']:
+                    if col in df.columns:
+                        unique_values[col] = df[col].dropna().unique().tolist()
+                return df, unique_values
+            except FileNotFoundError:
+                st.error("File 'test_task1a_cleaned.csv' not found. Please check the file path.")
+                st.stop()
 
-        data = load_cohort_data()
+        data, unique_values = load_cohort_data()
 
-        # --- DEFINE compute_outcomes FUNCTION ---
+        # Get available options from data
+        sex_options = unique_values.get('sex_label', [])
+        mobility_options = unique_values.get('walk_label', [])
+        asa_options = unique_values.get('asa_label', [])
+        cognition_options = unique_values.get('cogstat_label', [])
+        ward_options_raw = unique_values.get('ward_label', [])
+
+        # Map ward options to simplified categories
+        def map_ward_option(ward):
+            if 'Hip fracture unit' in str(ward) or 'Orthopaedic' in str(ward):
+                return "Hip fracture unit / Orthopaedic ward"
+            elif 'HDU' in str(ward) or 'ICU' in str(ward) or 'CCU' in str(ward):
+                return "ICU / HDU / CCU"
+            elif 'Outlying' in str(ward):
+                return "Outlying ward"
+            else:
+                return "Unknown"
+
+        # Create mapping between display options and actual values
+        ward_mapping = {}
+        for ward in ward_options_raw:
+            mapped = map_ward_option(ward)
+            if mapped not in ward_mapping:
+                ward_mapping[mapped] = [ward]
+            elif ward not in ward_mapping[mapped]:
+                ward_mapping[mapped].append(ward)
+
+        ward_display_options = list(ward_mapping.keys())
+
+        # Display info box
+        st.markdown("""
+        <div class="info-box">
+        <strong>How to use:</strong> Select patient characteristics to see predicted outcomes based on similar patients in the ANZHFR database.
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Create two columns for inputs
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Patient Characteristics")
+            
+            # Age group selection
+            age_group = st.selectbox(
+                "Age Group",
+                ["50–59", "60–69", "70–79", "80–89", "90+"],
+                index=1
+            )
+            
+            # Sex selection - use values from data
+            sex = st.selectbox(
+                "Sex",
+                sex_options if sex_options else ["Male", "Female"]
+            )
+            
+            # Pre-injury mobility - use values from data
+            preInjuryMobility = st.selectbox(
+                "Pre-Injury Mobility",
+                mobility_options if mobility_options else ["Independent (No aids)", "Walk stick", "Walker", "Wheelchair", "Bed bound"]
+            )
+
+        with col2:
+            # ASA status - use values from data
+            asa = st.selectbox(
+                "ASA Physical Status",
+                asa_options if asa_options else [
+                    "No systemic disease",
+                    "Mild systemic disease not limiting activity",
+                    "Severe systemic disease that limits activity but not incapacitating",
+                    "Severe systemic disease that is a constant threat to life"
+                ]
+            )
+            
+            # Cognitive status - use values from data
+            cognitiveStatus = st.selectbox(
+                "Cognitive Status",
+                cognition_options if cognition_options else ["Normal cognition", "Mild cognitive impairment", "Moderate impairment", "Severe impairment"]
+            )
+            
+            # Initial ward type
+            initialWardType = st.selectbox(
+                "Initial Ward Type",
+                ward_display_options if ward_display_options else [
+                    "Hip fracture unit / Orthopaedic ward",
+                    "ICU / HDU / CCU",
+                    "Outlying ward",
+                    "Unknown"
+                ]
+            )
+
+        # Define compute_outcomes function
         def compute_outcomes(df, payload):
+            """Compute outcomes based on patient characteristics"""
             d = df.copy()
-
+            
             # Age group filtering
             ag = payload["ageGroup"]
             if ag == "50–59":
@@ -477,64 +581,58 @@ def main():
                 d = d[(d["age"] >= 80) & (d["age"] <= 89)]
             elif ag == "90+":
                 d = d[d["age"] >= 90]
-
+            
             # Categorical filters
-            d = d[d["sex_label"] == payload["sex"]]
-            d = d[d["walk_label"] == payload["preInjuryMobility"]]
-            d = d[d["asa_label"] == payload["asa"]]
-            d = d[d["cogstat_label"] == payload["cognitiveStatus"]]
-
+            if "sex" in payload and "sex_label" in d.columns:
+                d = d[d["sex_label"] == payload["sex"]]
+            
+            if "preInjuryMobility" in payload and "walk_label" in d.columns:
+                d = d[d["walk_label"] == payload["preInjuryMobility"]]
+            
+            if "asa" in payload and "asa_label" in d.columns:
+                d = d[d["asa_label"] == payload["asa"]]
+            
+            if "cognitiveStatus" in payload and "cogstat_label" in d.columns:
+                d = d[d["cogstat_label"] == payload["cognitiveStatus"]]
+            
             # Ward mapping
-            WARD_MAP = {
-                "Hip fracture unit / Orthopaedic ward": ["Hip fracture unit/Orthopaedic ward/preferred ward"],
-                "ICU / HDU / CCU": ["HDU / ICU / CCU"],
-                "Outlying ward": ["Outlying ward"],
-                "Unknown": ["Unknown"],
-            }
-            d = d[d["ward_label"].isin(WARD_MAP[payload["initialWardType"]])]
-
+            if "initialWardType" in payload and "ward_label" in d.columns:
+                if payload["initialWardType"] in ward_mapping:
+                    d = d[d["ward_label"].isin(ward_mapping[payload["initialWardType"]])]
+            
             # Compute outputs
             n = len(d)
             if n == 0:
                 return {"sampleSize": 0}
-
-            los = d["hdisch_datediff"].dropna()
-            median = float(los.median()) if len(los) else None
-            q1 = float(los.quantile(0.25)) if len(los) else None
-            q3 = float(los.quantile(0.75)) if len(los) else None
-
-            rehab_pct = float((d["uresidence_label"] != "Private residence").mean() * 100)
-            early_mob_pct = float((d["walk_label"] == "Independent (No aids)").mean() * 100)
-
+            
+            # Hospital stay statistics
+            if "hdisch_datediff" in d.columns:
+                los = d["hdisch_datediff"].dropna()
+                median = float(los.median()) if len(los) > 0 else None
+                q1 = float(los.quantile(0.25)) if len(los) > 0 else None
+                q3 = float(los.quantile(0.75)) if len(los) > 0 else None
+            else:
+                median = q1 = q3 = None
+            
+            # Rehab requirement
+            if "uresidence_label" in d.columns:
+                rehab_pct = float((d["uresidence_label"] != "Private residence").mean() * 100)
+            else:
+                rehab_pct = None
+            
+            # Early mobility - check if patient returned to independent mobility
+            # This is a simplified calculation - you might want to adjust based on your data
+            if "walk_label" in d.columns:
+                early_mob_pct = float((d["walk_label"] == "Independent (No aids)").mean() * 100)
+            else:
+                early_mob_pct = None
+            
             return {
                 "sampleSize": int(n),
                 "hospitalStayDays": {"median": median, "iqr": [q1, q3]},
-                "rehabRequirementPct": round(rehab_pct, 1),
-                "earlyMobilityPct": round(early_mob_pct, 1),
+                "rehabRequirementPct": round(rehab_pct, 1) if rehab_pct is not None else None,
+                "earlyMobilityPct": round(early_mob_pct, 1) if early_mob_pct is not None else None,
             }
-
-        # --- STREAMLIT TAB 1 ---
-        with col1:
-            age_group = st.selectbox("Age Group", ["50–59", "60–69", "70–79", "80–89", "90+"], index=1)
-            sex = st.selectbox("Sex", ["Male", "Female"])
-            preInjuryMobility = st.selectbox("Pre-Injury Mobility", 
-                ["Independent (No aids)", "Walk stick", "Walker", "Wheelchair", "Bed bound"])
-            asa = st.selectbox("ASA Status", [
-                "No systemic disease",
-                "Mild systemic disease not limiting activity",
-                "Severe systemic disease that limits activity but not incapacitating",
-                "Severe systemic disease that is a constant threat to life"
-            ])
-        
-        with col2:
-            cognitiveStatus = st.selectbox("Cognitive Status", 
-                ["Normal cognition", "Mild cognitive impairment", "Moderate impairment", "Severe impairment"])
-            initialWardType = st.selectbox("Initial Ward Type", [
-                "Hip fracture unit / Orthopaedic ward",
-                "ICU / HDU / CCU",
-                "Outlying ward",
-                "Unknown"
-            ])
 
         # Build payload
         payload = {
@@ -546,31 +644,176 @@ def main():
             "initialWardType": initialWardType
         }
 
-        # Compute results
-        result = compute_outcomes(data, payload)
-
-        if result["sampleSize"] == 0:
-            st.warning("⚠️ No patients match the selected criteria.")
-        else:
-            st.metric("Cohort Size", result["sampleSize"])
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.metric("Median Hospital Stay (days)", result["hospitalStayDays"]["median"])
-            with c2:
-                st.metric("Rehab Requirement (%)", f"{result['rehabRequirementPct']}%")
-            with c3:
-                st.metric("Early Mobility (%)", f"{result['earlyMobilityPct']}%")
+        # Button to calculate
+        if st.button("Calculate Outcomes", type="primary"):
+            result = compute_outcomes(data, payload)
             
-            # Optional: Show IQR
-            iqr = result["hospitalStayDays"]["iqr"]
-            if iqr[0] is not None:
-                st.caption(f"Length of Stay IQR: {iqr[0]:.0f} – {iqr[1]:.0f} days")
-
-            # Optional: Plot LOS distribution
-            # (Re-filter data for plot)
-            d_plot = data.copy()
-            # Apply same filters as in compute_outcomes (reuse logic or refactor if needed)
-            # For brevity, we skip histogram here unless needed
+            if result["sampleSize"] == 0:
+                st.warning("⚠️ No patients match the selected criteria.")
+            else:
+                # Display metrics
+                st.success(f"✅ Found {result['sampleSize']} similar patients")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    if result["hospitalStayDays"]["median"] is not None:
+                        st.metric(
+                            "Median Hospital Stay",
+                            f"{result['hospitalStayDays']['median']:.1f} days",
+                            help="Typical length of hospital stay"
+                        )
+                        # Show IQR if available
+                        iqr = result["hospitalStayDays"]["iqr"]
+                        if iqr[0] is not None and iqr[1] is not None:
+                            st.caption(f"IQR: {iqr[0]:.1f} - {iqr[1]:.1f} days")
+                
+                with col2:
+                    if result["rehabRequirementPct"] is not None:
+                        st.metric(
+                            "Rehab Requirement",
+                            f"{result['rehabRequirementPct']:.1f}%",
+                            help="Percentage requiring rehabilitation"
+                        )
+                
+                with col3:
+                    if result["earlyMobilityPct"] is not None:
+                        st.metric(
+                            "Early Mobility",
+                            f"{result['earlyMobilityPct']:.1f}%",
+                            help="Percentage with independent mobility"
+                        )
+                
+                # Create visualizations
+                st.markdown("---")
+                st.subheader("📊 Visualization")
+                
+                # Get the filtered data for visualization
+                filtered_data = data.copy()
+                
+                # Apply the same filters
+                ag = payload["ageGroup"]
+                if ag == "50–59":
+                    filtered_data = filtered_data[(filtered_data["age"] >= 50) & (filtered_data["age"] <= 59)]
+                elif ag == "60–69":
+                    filtered_data = filtered_data[(filtered_data["age"] >= 60) & (filtered_data["age"] <= 69)]
+                elif ag == "70–79":
+                    filtered_data = filtered_data[(filtered_data["age"] >= 70) & (filtered_data["age"] <= 79)]
+                elif ag == "80–89":
+                    filtered_data = filtered_data[(filtered_data["age"] >= 80) & (filtered_data["age"] <= 89)]
+                elif ag == "90+":
+                    filtered_data = filtered_data[filtered_data["age"] >= 90]
+                
+                filtered_data = filtered_data[filtered_data["sex_label"] == payload["sex"]]
+                filtered_data = filtered_data[filtered_data["walk_label"] == payload["preInjuryMobility"]]
+                filtered_data = filtered_data[filtered_data["asa_label"] == payload["asa"]]
+                filtered_data = filtered_data[filtered_data["cogstat_label"] == payload["cognitiveStatus"]]
+                
+                if payload["initialWardType"] in ward_mapping:
+                    filtered_data = filtered_data[filtered_data["ward_label"].isin(ward_mapping[payload["initialWardType"]])]
+                
+                # Create visualizations
+                if len(filtered_data) > 0 and "hdisch_datediff" in filtered_data.columns:
+                    # Create two columns for plots
+                    plot_col1, plot_col2 = st.columns(2)
+                    
+                    with plot_col1:
+                        # Hospital stay histogram
+                        fig1, ax1 = plt.subplots(figsize=(8, 5))
+                        
+                        hospital_stays = filtered_data["hdisch_datediff"].dropna()
+                        if len(hospital_stays) > 0:
+                            # Cap at 95th percentile for better visualization
+                            cap_value = hospital_stays.quantile(0.95)
+                            stays_capped = hospital_stays[hospital_stays <= cap_value]
+                            
+                            n, bins, patches = ax1.hist(stays_capped, bins=20, 
+                                                        edgecolor='white', linewidth=0.5,
+                                                        alpha=0.7, color='#3498db')
+                            
+                            # Add median line
+                            median_val = result["hospitalStayDays"]["median"]
+                            if median_val:
+                                ax1.axvline(median_val, color='red', linestyle='--', 
+                                        linewidth=2, label=f'Median: {median_val:.1f} days')
+                            
+                            # Add IQR shading if available
+                            iqr = result["hospitalStayDays"]["iqr"]
+                            if iqr[0] and iqr[1]:
+                                ax1.axvspan(iqr[0], iqr[1], alpha=0.2, color='green', 
+                                        label=f'IQR: {iqr[0]:.1f}-{iqr[1]:.1f} days')
+                            
+                            ax1.set_xlabel('Hospital Stay Duration (days)')
+                            ax1.set_ylabel('Number of Patients')
+                            ax1.set_title('Hospital Stay Distribution')
+                            ax1.legend(fontsize=9)
+                            ax1.grid(alpha=0.3, linestyle='--')
+                            
+                            st.pyplot(fig1)
+                    
+                    with plot_col2:
+                        # Outcome percentages bar chart
+                        fig2, ax2 = plt.subplots(figsize=(8, 5))
+                        
+                        outcomes = []
+                        percentages = []
+                        colors = []
+                        
+                        if result["rehabRequirementPct"] is not None:
+                            outcomes.append("Rehab\nRequirement")
+                            percentages.append(result["rehabRequirementPct"])
+                            colors.append('#2ecc71')
+                        
+                        if result["earlyMobilityPct"] is not None:
+                            outcomes.append("Early\nMobility")
+                            percentages.append(result["earlyMobilityPct"])
+                            colors.append('#3498db')
+                        
+                        if outcomes:
+                            bars = ax2.bar(outcomes, percentages, color=colors, edgecolor='black', linewidth=1.5)
+                            ax2.set_ylabel('Percentage (%)')
+                            ax2.set_title('Patient Outcomes')
+                            ax2.set_ylim(0, 100)
+                            
+                            # Add percentage labels on bars
+                            for bar, pct in zip(bars, percentages):
+                                height = bar.get_height()
+                                ax2.text(bar.get_x() + bar.get_width()/2., height + 2,
+                                        f'{pct:.1f}%', ha='center', va='bottom', fontweight='bold')
+                            
+                            ax2.grid(axis='y', alpha=0.3, linestyle='--')
+                            
+                            st.pyplot(fig2)
+                    
+                    # Additional insights
+                    st.markdown("---")
+                    st.subheader("📋 Insights")
+                    
+                    insights = []
+                    
+                    if result["hospitalStayDays"]["median"] is not None:
+                        median_val = result["hospitalStayDays"]["median"]
+                        insights.append(f"**Hospital Stay:** The median hospital stay is **{median_val:.1f} days**")
+                    
+                    if result["rehabRequirementPct"] is not None:
+                        rehab_pct = result["rehabRequirementPct"]
+                        if rehab_pct > 50:
+                            insights.append(f"**Rehab Requirement:** {rehab_pct:.1f}% require rehabilitation (higher than average)")
+                        else:
+                            insights.append(f"**Rehab Requirement:** {rehab_pct:.1f}% require rehabilitation")
+                    
+                    if result["earlyMobilityPct"] is not None:
+                        mob_pct = result["earlyMobilityPct"]
+                        if mob_pct > 60:
+                            insights.append(f"**Mobility:** {mob_pct:.1f}% achieve early mobility (better than average)")
+                        else:
+                            insights.append(f"**Mobility:** {mob_pct:.1f}% achieve early mobility")
+                    
+                    for insight in insights:
+                        st.info(insight)
+        else:
+            # Show placeholder before calculation
+            st.info("👈 Select patient characteristics and click 'Calculate Outcomes' to see predictions.")
 
 
 #----------------------------------------------------------
